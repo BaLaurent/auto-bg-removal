@@ -1,0 +1,15 @@
+.env
+backend/checkpoints/*.pt
+backend/checkpoints/*.yaml
+backend/.venv/
+backend/**/__pycache__/
+backend/**/*.pyc
+backend/.pytest_cache/
+frontend/node_modules/
+frontend/dist/
+frontend/src/**/*.js
+frontend/src/**/*.js.map
+frontend/src/**/*.d.ts
+frontend/.tsbuildinfo
+frontend/tsconfig.tsbuildinfo
+.DS_Store

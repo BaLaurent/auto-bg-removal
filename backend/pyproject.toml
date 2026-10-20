@@ -1,0 +1,41 @@
+[project]
+name = "auto-bg"
+version = "0.1.0"
+description = "Background removal web app powered by SAM 2"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "python-multipart>=0.0.9",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "Pillow>=10.3",
+    "numpy>=1.26",
+    "pycocotools>=2.0.7",
+]
+
+[project.optional-dependencies]
+# Note : la lib SAM 2 (facebookresearch/sam2) n'est PAS listée ici. Elle est
+# installée séparément dans le Dockerfile avec --no-build-isolation pour
+# réutiliser le torch déjà présent dans l'image PyTorch (sinon pip recompile
+# une CUDA toolchain dans le build env, +8 min).
+sam2 = [
+    "hydra-core>=1.3",
+    "iopath>=0.1.10",
+]
+dev = [
+    "pytest>=8.2",
+    "pytest-asyncio>=0.23",
+    "httpx>=0.27",
+]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["src/auto_bg/tests"]

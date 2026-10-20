@@ -1,0 +1,45 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        # 1 = pip install la lib sam2 (compile extension CUDA, ~2-5 min). Mettre 0
+        # pour un dev rapide sans GPU avec PREDICTOR_BACKEND=fake.
+        INSTALL_SAM2: ${INSTALL_SAM2:-0}
+    container_name: auto-bg-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    environment:
+      - CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0}
+      - MODEL_DIR=${MODEL_DIR:-/app/checkpoints}
+      - LRU_SIZE=${LRU_SIZE:-8}
+      - PREDICTOR_BACKEND=${PREDICTOR_BACKEND:-fake}
+      - DEFAULT_MODEL=${DEFAULT_MODEL:-sam2_hiera_base_plus}
+    volumes:
+      - ./backend/checkpoints:/app/checkpoints
+      - ./backend/src:/app/src
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: auto-bg-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-5173}:80"
+    depends_on:
+      - backend
